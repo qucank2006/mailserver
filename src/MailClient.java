@@ -4,6 +4,7 @@ import java.awt.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 
 public class MailClient extends JFrame {
@@ -28,32 +29,62 @@ public class MailClient extends JFrame {
     private String currentPassword;
 
     // Colors
-    private final Color BACKGROUND = new Color(15, 18, 24);
-    private final Color PANEL = new Color(23, 28, 37);
-    private final Color INPUT = new Color(31, 38, 49);
-    private final Color TEXT = new Color(230, 234, 240);
-    private final Color MUTED = new Color(140, 150, 165);
-    private final Color ACCENT = new Color(79, 140, 255);
-    private final Color GREEN = new Color(52, 211, 153);
+    private final Color BACKGROUND =
+            new Color(15, 18, 24);
+
+    private final Color PANEL =
+            new Color(23, 28, 37);
+
+    private final Color INPUT =
+            new Color(31, 38, 49);
+
+    private final Color TEXT =
+            new Color(230, 234, 240);
+
+    private final Color MUTED =
+            new Color(140, 150, 165);
+
+    private final Color ACCENT =
+            new Color(79, 140, 255);
+
+    private final Color GREEN =
+            new Color(52, 211, 153);
 
     public MailClient() {
 
         setTitle("Mail Client");
         setSize(900, 580);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        setDefaultCloseOperation(
+                JFrame.EXIT_ON_CLOSE
+        );
+
         setLocationRelativeTo(null);
 
         connectUDP();
 
-        cardLayout = new CardLayout();
-        mainPanel = new JPanel(cardLayout);
+        cardLayout =
+                new CardLayout();
 
-        mainPanel.add(createLoginPanel(), "LOGIN");
-        mainPanel.add(createMailPanel(), "MAIL");
+        mainPanel =
+                new JPanel(cardLayout);
+
+        mainPanel.add(
+                createLoginPanel(),
+                "LOGIN"
+        );
+
+        mainPanel.add(
+                createMailPanel(),
+                "MAIL"
+        );
 
         add(mainPanel);
 
-        cardLayout.show(mainPanel, "LOGIN");
+        cardLayout.show(
+                mainPanel,
+                "LOGIN"
+        );
     }
 
     // =====================================================
@@ -64,27 +95,36 @@ public class MailClient extends JFrame {
 
         try {
 
-            clientSocket = new DatagramSocket();
+            clientSocket =
+                    new DatagramSocket();
 
-            serverAddress = InetAddress.getByName(
-                    IPConfig.SERVER_IP
-            );
+            // Không để Client treo vô hạn
+            clientSocket.setSoTimeout(3000);
+
+            serverAddress =
+                    InetAddress.getByName(
+                            IPConfig.SERVER_IP
+                    );
 
         } catch (Exception e) {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Không thể tạo UDP Socket hoặc IP Server không hợp lệ"
+                    "Không thể tạo UDP Socket"
             );
         }
     }
 
-    private String sendRequest(String request) {
+    private String sendRequest(
+            String request
+    ) {
 
         try {
 
             byte[] sendData =
-                    request.getBytes(StandardCharsets.UTF_8);
+                    request.getBytes(
+                            StandardCharsets.UTF_8
+                    );
 
             DatagramPacket sendPacket =
                     new DatagramPacket(
@@ -94,7 +134,9 @@ public class MailClient extends JFrame {
                             IPConfig.SERVER_PORT
                     );
 
-            clientSocket.send(sendPacket);
+            clientSocket.send(
+                    sendPacket
+            );
 
             byte[] receiveData =
                     new byte[4096];
@@ -105,7 +147,9 @@ public class MailClient extends JFrame {
                             receiveData.length
                     );
 
-            clientSocket.receive(receivePacket);
+            clientSocket.receive(
+                    receivePacket
+            );
 
             return new String(
                     receivePacket.getData(),
@@ -113,6 +157,10 @@ public class MailClient extends JFrame {
                     receivePacket.getLength(),
                     StandardCharsets.UTF_8
             );
+
+        } catch (SocketTimeoutException e) {
+
+            return "Server không phản hồi";
 
         } catch (Exception e) {
 
@@ -127,17 +175,27 @@ public class MailClient extends JFrame {
     private JPanel createLoginPanel() {
 
         JPanel background =
-                new JPanel(new GridBagLayout());
+                new JPanel(
+                        new GridBagLayout()
+                );
 
-        background.setBackground(BACKGROUND);
-
-        JPanel box = new JPanel();
-
-        box.setPreferredSize(
-                new Dimension(430, 390)
+        background.setBackground(
+                BACKGROUND
         );
 
-        box.setBackground(PANEL);
+        JPanel box =
+                new JPanel();
+
+        box.setPreferredSize(
+                new Dimension(
+                        430,
+                        390
+                )
+        );
+
+        box.setBackground(
+                PANEL
+        );
 
         box.setLayout(
                 new BoxLayout(
@@ -156,18 +214,26 @@ public class MailClient extends JFrame {
         );
 
         JLabel smallTitle =
-                new JLabel("UDP MAIL SERVICE");
+                new JLabel(
+                        "UDP MAIL SERVICE"
+                );
 
-        smallTitle.setForeground(ACCENT);
+        smallTitle.setForeground(
+                ACCENT
+        );
 
         smallTitle.setAlignmentX(
                 Component.CENTER_ALIGNMENT
         );
 
         JLabel title =
-                new JLabel("MAIL CLIENT");
+                new JLabel(
+                        "MAIL CLIENT"
+                );
 
-        title.setForeground(TEXT);
+        title.setForeground(
+                TEXT
+        );
 
         title.setFont(
                 new Font(
@@ -181,14 +247,16 @@ public class MailClient extends JFrame {
                 Component.CENTER_ALIGNMENT
         );
 
-        // =====================
         // USERNAME
-        // =====================
 
         JLabel usernameLabel =
-                new JLabel("USERNAME");
+                new JLabel(
+                        "USERNAME"
+                );
 
-        usernameLabel.setForeground(MUTED);
+        usernameLabel.setForeground(
+                MUTED
+        );
 
         usernameLabel.setAlignmentX(
                 Component.LEFT_ALIGNMENT
@@ -197,7 +265,9 @@ public class MailClient extends JFrame {
         usernameField =
                 new JTextField();
 
-        styleTextField(usernameField);
+        styleTextField(
+                usernameField
+        );
 
         usernameField.setMaximumSize(
                 new Dimension(
@@ -206,14 +276,16 @@ public class MailClient extends JFrame {
                 )
         );
 
-        // =====================
         // PASSWORD
-        // =====================
 
         JLabel passwordLabel =
-                new JLabel("PASSWORD");
+                new JLabel(
+                        "PASSWORD"
+                );
 
-        passwordLabel.setForeground(MUTED);
+        passwordLabel.setForeground(
+                MUTED
+        );
 
         passwordLabel.setAlignmentX(
                 Component.LEFT_ALIGNMENT
@@ -222,7 +294,9 @@ public class MailClient extends JFrame {
         passwordField =
                 new JPasswordField();
 
-        styleTextField(passwordField);
+        styleTextField(
+                passwordField
+        );
 
         passwordField.setMaximumSize(
                 new Dimension(
@@ -230,10 +304,6 @@ public class MailClient extends JFrame {
                         42
                 )
         );
-
-        // =====================
-        // BUTTON
-        // =====================
 
         JButton loginButton =
                 createButton(
@@ -263,60 +333,73 @@ public class MailClient extends JFrame {
                 e -> register()
         );
 
-        // Enter password -> login
         passwordField.addActionListener(
                 e -> login()
         );
 
-        // =====================
-        // ADD COMPONENT
-        // =====================
-
-        box.add(smallTitle);
+        box.add(
+                smallTitle
+        );
 
         box.add(
                 Box.createVerticalStrut(5)
         );
 
-        box.add(title);
+        box.add(
+                title
+        );
 
         box.add(
                 Box.createVerticalStrut(30)
         );
 
-        box.add(usernameLabel);
+        box.add(
+                usernameLabel
+        );
 
         box.add(
                 Box.createVerticalStrut(5)
         );
 
-        box.add(usernameField);
+        box.add(
+                usernameField
+        );
 
         box.add(
                 Box.createVerticalStrut(15)
         );
 
-        box.add(passwordLabel);
+        box.add(
+                passwordLabel
+        );
 
         box.add(
                 Box.createVerticalStrut(5)
         );
 
-        box.add(passwordField);
+        box.add(
+                passwordField
+        );
 
         box.add(
                 Box.createVerticalStrut(20)
         );
 
-        box.add(loginButton);
+        box.add(
+                loginButton
+        );
 
         box.add(
                 Box.createVerticalStrut(10)
         );
 
-        box.add(registerButton);
+        box.add(
+                registerButton
+        );
 
-        background.add(box);
+        background.add(
+                box
+        );
 
         return background;
     }
@@ -328,9 +411,13 @@ public class MailClient extends JFrame {
     private JPanel createMailPanel() {
 
         JPanel panel =
-                new JPanel(new BorderLayout());
+                new JPanel(
+                        new BorderLayout()
+                );
 
-        panel.setBackground(BACKGROUND);
+        panel.setBackground(
+                BACKGROUND
+        );
 
         panel.add(
                 createSidebar(),
@@ -351,13 +438,19 @@ public class MailClient extends JFrame {
 
     private JPanel createSidebar() {
 
-        JPanel sidebar = new JPanel();
+        JPanel sidebar =
+                new JPanel();
 
         sidebar.setPreferredSize(
-                new Dimension(210, 0)
+                new Dimension(
+                        210,
+                        0
+                )
         );
 
-        sidebar.setBackground(PANEL);
+        sidebar.setBackground(
+                PANEL
+        );
 
         sidebar.setLayout(
                 new BoxLayout(
@@ -376,9 +469,13 @@ public class MailClient extends JFrame {
         );
 
         JLabel logo =
-                new JLabel("MAIL CLIENT");
+                new JLabel(
+                        "MAIL CLIENT"
+                );
 
-        logo.setForeground(TEXT);
+        logo.setForeground(
+                TEXT
+        );
 
         logo.setFont(
                 new Font(
@@ -389,9 +486,13 @@ public class MailClient extends JFrame {
         );
 
         userLabel =
-                new JLabel("User");
+                new JLabel(
+                        "User"
+                );
 
-        userLabel.setForeground(GREEN);
+        userLabel.setForeground(
+                GREEN
+        );
 
         JButton inboxButton =
                 createButton(
@@ -423,31 +524,41 @@ public class MailClient extends JFrame {
                 e -> logout()
         );
 
-        sidebar.add(logo);
+        sidebar.add(
+                logo
+        );
 
         sidebar.add(
                 Box.createVerticalStrut(10)
         );
 
-        sidebar.add(userLabel);
+        sidebar.add(
+                userLabel
+        );
 
         sidebar.add(
                 Box.createVerticalStrut(40)
         );
 
-        sidebar.add(inboxButton);
+        sidebar.add(
+                inboxButton
+        );
 
         sidebar.add(
                 Box.createVerticalStrut(10)
         );
 
-        sidebar.add(composeButton);
+        sidebar.add(
+                composeButton
+        );
 
         sidebar.add(
                 Box.createVerticalGlue()
         );
 
-        sidebar.add(logoutButton);
+        sidebar.add(
+                logoutButton
+        );
 
         return sidebar;
     }
@@ -466,7 +577,9 @@ public class MailClient extends JFrame {
                         )
                 );
 
-        inbox.setBackground(BACKGROUND);
+        inbox.setBackground(
+                BACKGROUND
+        );
 
         inbox.setBorder(
                 new EmptyBorder(
@@ -482,12 +595,18 @@ public class MailClient extends JFrame {
                         new BorderLayout()
                 );
 
-        header.setBackground(BACKGROUND);
+        header.setBackground(
+                BACKGROUND
+        );
 
         JLabel title =
-                new JLabel("INBOX");
+                new JLabel(
+                        "INBOX"
+                );
 
-        title.setForeground(TEXT);
+        title.setForeground(
+                TEXT
+        );
 
         title.setFont(
                 new Font(
@@ -521,10 +640,17 @@ public class MailClient extends JFrame {
                 new DefaultListModel<>();
 
         mailList =
-                new JList<>(mailListModel);
+                new JList<>(
+                        mailListModel
+                );
 
-        mailList.setBackground(PANEL);
-        mailList.setForeground(TEXT);
+        mailList.setBackground(
+                PANEL
+        );
+
+        mailList.setForeground(
+                TEXT
+        );
 
         mailList.setFont(
                 new Font(
@@ -534,13 +660,21 @@ public class MailClient extends JFrame {
                 )
         );
 
-        mailList.setFixedCellHeight(40);
-
-        mailList.setSelectionBackground(
-                new Color(45, 55, 70)
+        mailList.setFixedCellHeight(
+                40
         );
 
-        mailList.setSelectionForeground(TEXT);
+        mailList.setSelectionBackground(
+                new Color(
+                        45,
+                        55,
+                        70
+                )
+        );
+
+        mailList.setSelectionForeground(
+                TEXT
+        );
 
         mailList.setBorder(
                 new EmptyBorder(
@@ -551,25 +685,29 @@ public class MailClient extends JFrame {
                 )
         );
 
-        // Click email -> đọc mail
-        mailList.addListSelectionListener(e -> {
+        mailList.addListSelectionListener(
+                e -> {
 
-            if (!e.getValueIsAdjusting()) {
+                    if (!e.getValueIsAdjusting()) {
 
-                String selected =
-                        mailList.getSelectedValue();
+                        String selected =
+                                mailList
+                                        .getSelectedValue();
 
-                if (selected != null) {
+                        if (selected != null) {
 
-                    readMail(
-                            selected.trim()
-                    );
+                            readMail(
+                                    selected.trim()
+                            );
+                        }
+                    }
                 }
-            }
-        });
+        );
 
         JScrollPane scrollPane =
-                new JScrollPane(mailList);
+                new JScrollPane(
+                        mailList
+                );
 
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
@@ -672,14 +810,19 @@ public class MailClient extends JFrame {
                 "Danh sách email:"
         )) {
 
-            currentUser = username;
-            currentPassword = password;
+            currentUser =
+                    username;
+
+            currentPassword =
+                    password;
 
             userLabel.setText(
                     "● " + currentUser
             );
 
-            updateMailList(response);
+            updateMailList(
+                    response
+            );
 
             cardLayout.show(
                     mainPanel,
@@ -696,7 +839,7 @@ public class MailClient extends JFrame {
     }
 
     // =====================================================
-    // REFRESH INBOX
+    // REFRESH
     // =====================================================
 
     private void refreshInbox() {
@@ -717,7 +860,9 @@ public class MailClient extends JFrame {
                 "Danh sách email:"
         )) {
 
-            updateMailList(response);
+            updateMailList(
+                    response
+            );
 
         } else {
 
@@ -743,11 +888,9 @@ public class MailClient extends JFrame {
         String[] lines =
                 response.split("\n");
 
-        for (
-                int i = 1;
-                i < lines.length;
-                i++
-        ) {
+        for (int i = 1;
+             i < lines.length;
+             i++) {
 
             if (!lines[i].isBlank()) {
 
@@ -776,11 +919,16 @@ public class MailClient extends JFrame {
                 450
         );
 
-        dialog.setLocationRelativeTo(this);
+        dialog.setLocationRelativeTo(
+                this
+        );
 
-        JPanel panel = new JPanel();
+        JPanel panel =
+                new JPanel();
 
-        panel.setBackground(BACKGROUND);
+        panel.setBackground(
+                BACKGROUND
+        );
 
         panel.setLayout(
                 new BoxLayout(
@@ -803,7 +951,9 @@ public class MailClient extends JFrame {
                         "NEW MESSAGE"
                 );
 
-        title.setForeground(TEXT);
+        title.setForeground(
+                TEXT
+        );
 
         title.setFont(
                 new Font(
@@ -819,17 +969,25 @@ public class MailClient extends JFrame {
                                 + currentUser
                 );
 
-        fromLabel.setForeground(GREEN);
+        fromLabel.setForeground(
+                GREEN
+        );
 
         JLabel toLabel =
-                new JLabel("TO");
+                new JLabel(
+                        "TO"
+                );
 
-        toLabel.setForeground(MUTED);
+        toLabel.setForeground(
+                MUTED
+        );
 
         JTextField receiverField =
                 new JTextField();
 
-        styleTextField(receiverField);
+        styleTextField(
+                receiverField
+        );
 
         receiverField.setMaximumSize(
                 new Dimension(
@@ -839,16 +997,28 @@ public class MailClient extends JFrame {
         );
 
         JLabel messageLabel =
-                new JLabel("MESSAGE");
+                new JLabel(
+                        "MESSAGE"
+                );
 
-        messageLabel.setForeground(MUTED);
+        messageLabel.setForeground(
+                MUTED
+        );
 
         JTextArea contentArea =
                 new JTextArea();
 
-        contentArea.setBackground(INPUT);
-        contentArea.setForeground(TEXT);
-        contentArea.setCaretColor(TEXT);
+        contentArea.setBackground(
+                INPUT
+        );
+
+        contentArea.setForeground(
+                TEXT
+        );
+
+        contentArea.setCaretColor(
+                TEXT
+        );
 
         contentArea.setFont(
                 new Font(
@@ -858,8 +1028,13 @@ public class MailClient extends JFrame {
                 )
         );
 
-        contentArea.setLineWrap(true);
-        contentArea.setWrapStyleWord(true);
+        contentArea.setLineWrap(
+                true
+        );
+
+        contentArea.setWrapStyleWord(
+                true
+        );
 
         JScrollPane scroll =
                 new JScrollPane(
@@ -878,56 +1053,70 @@ public class MailClient extends JFrame {
                         ACCENT
                 );
 
-        sendButton.addActionListener(e -> {
+        sendButton.addActionListener(
+                e -> {
 
-            String receiver =
-                    receiverField
-                            .getText()
-                            .trim();
+                    String receiver =
+                            receiverField
+                                    .getText()
+                                    .trim();
 
-            String content =
-                    contentArea
-                            .getText()
-                            .trim();
+                    String content =
+                            contentArea
+                                    .getText()
+                                    .trim();
 
-            sendMail(
-                    receiver,
-                    content,
-                    dialog
-            );
-        });
+                    sendMail(
+                            receiver,
+                            content,
+                            dialog
+                    );
+                }
+        );
 
-        panel.add(title);
+        panel.add(
+                title
+        );
 
         panel.add(
                 Box.createVerticalStrut(8)
         );
 
-        panel.add(fromLabel);
+        panel.add(
+                fromLabel
+        );
 
         panel.add(
                 Box.createVerticalStrut(20)
         );
 
-        panel.add(toLabel);
+        panel.add(
+                toLabel
+        );
 
         panel.add(
                 Box.createVerticalStrut(5)
         );
 
-        panel.add(receiverField);
+        panel.add(
+                receiverField
+        );
 
         panel.add(
                 Box.createVerticalStrut(15)
         );
 
-        panel.add(messageLabel);
+        panel.add(
+                messageLabel
+        );
 
         panel.add(
                 Box.createVerticalStrut(5)
         );
 
-        panel.add(scroll);
+        panel.add(
+                scroll
+        );
 
         panel.add(
                 Box.createVerticalStrut(15)
@@ -937,11 +1126,17 @@ public class MailClient extends JFrame {
                 Component.RIGHT_ALIGNMENT
         );
 
-        panel.add(sendButton);
+        panel.add(
+                sendButton
+        );
 
-        dialog.add(panel);
+        dialog.add(
+                panel
+        );
 
-        dialog.setVisible(true);
+        dialog.setVisible(
+                true
+        );
     }
 
     // =====================================================
@@ -1004,6 +1199,60 @@ public class MailClient extends JFrame {
                                 + fileName
                 );
 
+        String sender = "";
+        String time = "";
+        String ip = "";
+        String content = "";
+
+        // Header và content cách nhau bằng dòng trống
+        String[] parts =
+                response.split(
+                        "\\R\\R",
+                        2
+                );
+
+        String header =
+                parts[0];
+
+        if (parts.length > 1) {
+            content = parts[1];
+        }
+
+        String[] headerLines =
+                header.split("\\R");
+
+        for (String line : headerLines) {
+
+            if (line.startsWith(
+                    "From:"
+            )) {
+
+                sender =
+                        line.substring(5)
+                                .trim();
+
+            } else if (line.startsWith(
+                    "Time:"
+            )) {
+
+                time =
+                        line.substring(5)
+                                .trim();
+
+            } else if (line.startsWith(
+                    "IP:"
+            )) {
+
+                ip =
+                        line.substring(3)
+                                .trim();
+            }
+        }
+
+        // ============================
+        // DIALOG
+        // ============================
+
         JDialog dialog =
                 new JDialog(
                         this,
@@ -1012,11 +1261,13 @@ public class MailClient extends JFrame {
                 );
 
         dialog.setSize(
-                570,
-                420
+                600,
+                480
         );
 
-        dialog.setLocationRelativeTo(this);
+        dialog.setLocationRelativeTo(
+                this
+        );
 
         JPanel panel =
                 new JPanel(
@@ -1026,7 +1277,9 @@ public class MailClient extends JFrame {
                         )
                 );
 
-        panel.setBackground(BACKGROUND);
+        panel.setBackground(
+                BACKGROUND
+        );
 
         panel.setBorder(
                 new EmptyBorder(
@@ -1037,54 +1290,116 @@ public class MailClient extends JFrame {
                 )
         );
 
-        JPanel header =
+        // ============================
+        // MAIL INFORMATION
+        // ============================
+
+        JPanel headerPanel =
                 new JPanel();
 
-        header.setLayout(
+        headerPanel.setLayout(
                 new BoxLayout(
-                        header,
+                        headerPanel,
                         BoxLayout.Y_AXIS
                 )
         );
 
-        header.setBackground(BACKGROUND);
+        headerPanel.setBackground(
+                PANEL
+        );
 
-        JLabel title =
-                new JLabel("MESSAGE");
-
-        title.setForeground(TEXT);
-
-        title.setFont(
-                new Font(
-                        "Arial",
-                        Font.BOLD,
-                        22
+        headerPanel.setBorder(
+                new EmptyBorder(
+                        15,
+                        15,
+                        15,
+                        15
                 )
         );
 
-        JLabel fileLabel =
-                new JLabel(fileName);
+        JLabel senderLabel =
+                new JLabel(
+                        "FROM: " + sender
+                );
 
-        fileLabel.setForeground(MUTED);
+        senderLabel.setForeground(
+                GREEN
+        );
 
-        header.add(title);
+        senderLabel.setFont(
+                new Font(
+                        "Arial",
+                        Font.BOLD,
+                        16
+                )
+        );
 
-        header.add(
+        JLabel timeLabel =
+                new JLabel(
+                        "TIME: " + time
+                );
+
+        timeLabel.setForeground(
+                MUTED
+        );
+
+        JLabel ipLabel =
+                new JLabel(
+                        "SENDER IP: " + ip
+                );
+
+        ipLabel.setForeground(
+                ACCENT
+        );
+
+        headerPanel.add(
+                senderLabel
+        );
+
+        headerPanel.add(
+                Box.createVerticalStrut(8)
+        );
+
+        headerPanel.add(
+                timeLabel
+        );
+
+        headerPanel.add(
                 Box.createVerticalStrut(5)
         );
 
-        header.add(fileLabel);
+        headerPanel.add(
+                ipLabel
+        );
+
+        // ============================
+        // CONTENT
+        // ============================
 
         JTextArea messageArea =
-                new JTextArea(response);
+                new JTextArea(
+                        content
+                );
 
-        messageArea.setEditable(false);
+        messageArea.setEditable(
+                false
+        );
 
-        messageArea.setLineWrap(true);
-        messageArea.setWrapStyleWord(true);
+        messageArea.setLineWrap(
+                true
+        );
 
-        messageArea.setBackground(PANEL);
-        messageArea.setForeground(TEXT);
+        messageArea.setWrapStyleWord(
+                true
+        );
+
+        messageArea.setBackground(
+                PANEL
+        );
+
+        messageArea.setForeground(
+                TEXT
+        );
 
         messageArea.setFont(
                 new Font(
@@ -1109,10 +1424,21 @@ public class MailClient extends JFrame {
                 );
 
         scrollPane.setBorder(
-                BorderFactory.createLineBorder(
-                        INPUT
+                BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(
+                                INPUT
+                        ),
+                        "CONTENT",
+                        0,
+                        0,
+                        null,
+                        MUTED
                 )
         );
+
+        // ============================
+        // CLOSE
+        // ============================
 
         JButton closeButton =
                 createButton(
@@ -1131,12 +1457,16 @@ public class MailClient extends JFrame {
                         )
                 );
 
-        bottom.setBackground(BACKGROUND);
+        bottom.setBackground(
+                BACKGROUND
+        );
 
-        bottom.add(closeButton);
+        bottom.add(
+                closeButton
+        );
 
         panel.add(
-                header,
+                headerPanel,
                 BorderLayout.NORTH
         );
 
@@ -1150,11 +1480,14 @@ public class MailClient extends JFrame {
                 BorderLayout.SOUTH
         );
 
-        dialog.add(panel);
+        dialog.add(
+                panel
+        );
 
-        dialog.setVisible(true);
+        dialog.setVisible(
+                true
+        );
 
-        // Cho phép click lại cùng email
         mailList.clearSelection();
     }
 
@@ -1188,12 +1521,21 @@ public class MailClient extends JFrame {
     ) {
 
         JButton button =
-                new JButton(text);
+                new JButton(
+                        text
+                );
 
-        button.setBackground(color);
-        button.setForeground(TEXT);
+        button.setBackground(
+                color
+        );
 
-        button.setFocusPainted(false);
+        button.setForeground(
+                TEXT
+        );
+
+        button.setFocusPainted(
+                false
+        );
 
         button.setFont(
                 new Font(
@@ -1224,9 +1566,17 @@ public class MailClient extends JFrame {
             JTextField field
     ) {
 
-        field.setBackground(INPUT);
-        field.setForeground(TEXT);
-        field.setCaretColor(TEXT);
+        field.setBackground(
+                INPUT
+        );
+
+        field.setForeground(
+                TEXT
+        );
+
+        field.setCaretColor(
+                TEXT
+        );
 
         field.setFont(
                 new Font(
@@ -1255,14 +1605,20 @@ public class MailClient extends JFrame {
     // MAIN
     // =====================================================
 
-    public static void main(String[] args) {
+    public static void main(
+            String[] args
+    ) {
 
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(
+                () -> {
 
-            MailClient client =
-                    new MailClient();
+                    MailClient client =
+                            new MailClient();
 
-            client.setVisible(true);
-        });
+                    client.setVisible(
+                            true
+                    );
+                }
+        );
     }
 }
